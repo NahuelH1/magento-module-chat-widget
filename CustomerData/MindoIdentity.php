@@ -32,10 +32,10 @@ declare(strict_types=1);
 
 namespace Mindo\ChatWidget\CustomerData;
 
-use Firebase\JWT\JWT;
 use Magento\Customer\CustomerData\SectionSourceInterface;
 use Magento\Customer\Model\Session as CustomerSession;
 use Mindo\ChatWidget\Model\Config;
+use Mindo\ChatWidget\Model\JwtSigner;
 use Psr\Log\LoggerInterface;
 
 class MindoIdentity implements SectionSourceInterface
@@ -43,6 +43,7 @@ class MindoIdentity implements SectionSourceInterface
     public function __construct(
         private readonly CustomerSession $customerSession,
         private readonly Config $config,
+        private readonly JwtSigner $jwtSigner,
         private readonly LoggerInterface $logger
     ) {
     }
@@ -100,7 +101,7 @@ class MindoIdentity implements SectionSourceInterface
             $payload['phone'] = $phone;
         }
 
-        return JWT::encode($payload, $secret, 'HS256');
+        return $this->jwtSigner->signHs256($payload, $secret);
     }
 
     /**

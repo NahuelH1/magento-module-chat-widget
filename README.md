@@ -54,9 +54,27 @@ Los cinco campos son por store view: podés tener un canal distinto por tienda.
 
 Si el canal tiene `allowed_origins` cargado en Mindo, **agregá el dominio de la tienda** (incluido el de staging). Con la lista vacía no hay restricción de origen.
 
+## Tests
+
+Corren **sin Magento y sin dependencias** — stubs de los pocos símbolos de
+Magento que el módulo toca:
+
+```bash
+php tests/run.php            # Config, ViewModel, MindoIdentity, JwtSigner
+node tests/identity.test.js  # el puente JS: orden de carga, login/logout
+```
+
+Cubren el payload del JWT, el recorte del TTL contra el tope de Mindo, las dos
+formas de cargar el secreto, que el ViewModel no filtre el secreto al HTML, y
+que ningún camino de error propague una excepción al private content.
+
+**No** cubren el cableado con Magento —que la section quede registrada, que el
+layout inyecte el bloque, que el FPC no toque el private content—: eso necesita
+una instalación real. Ver *Verificar en una tienda*.
+
 ## Verificar
 
-Sin Magento, para cerrar la mitad criptográfica:
+Sin Magento, para cerrar la mitad criptográfica contra el canal real:
 
 ```bash
 php tools/sign-test.php 'EL_SECRETO' 'EL_TOKEN' 'https://tu-tienda.com'
@@ -64,12 +82,24 @@ php tools/sign-test.php 'EL_SECRETO' 'EL_TOKEN' 'https://tu-tienda.com'
 
 `200` = Mindo aceptó la firma. `401` = el secreto no es el del canal del token.
 
-Ya instalado, con un cliente logueado en la tienda:
+### Verificar en una tienda
+
+Con el módulo instalado y un cliente logueado:
 
 1. `/customer/section/load?sections=mindo-identity` devuelve `{"mindo-identity":{"identity":"eyJ..."}}`.
 2. En la consola, `window.Mindo` existe y el chat abre.
 3. En Mindo, el chat entra asociado al contacto — no como visitante anónimo.
 4. Logout → recargar → la section devuelve `identity: null`.
+
+**La prueba que importa** —que el Full Page Cache no mezcle identidades:
+
+```bash
+curl -s https://tu-tienda.com/ | grep -c 'eyJ'   # tiene que dar 0
+```
+
+Y a mano: cliente A logueado en una ventana, cliente B en otra (o incógnito).
+Cada uno tiene que ver su propio chat. Si B ve el de A, el JWT se está
+filtrando por el HTML cacheado.
 
 ## Cómo funciona
 
