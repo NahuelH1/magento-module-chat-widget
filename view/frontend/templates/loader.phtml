@@ -1,0 +1,34 @@
+<?php
+/**
+ * Loader del widget.
+ *
+ * Todo lo de este archivo es público e idéntico para cualquier visitante, así
+ * que es seguro que el Full Page Cache lo guarde. La identidad del cliente NO
+ * está acá: la trae `js/identity.js` desde la section de private content.
+ *
+ * @var \Magento\Framework\View\Element\Template $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+
+/** @var \Mindo\ChatWidget\ViewModel\WidgetConfig $viewModel */
+$viewModel = $block->getData('view_model');
+
+if (!$viewModel || !$viewModel->isEnabled()) {
+    return;
+}
+?>
+<script>
+    // Cola de llamadas para el caso en que identity.js corra antes de que
+    // widget.js termine de cargar. El loader la drena al montar.
+    window.Mindo = window.Mindo || { q: [] };
+</script>
+<script src="<?= $escaper->escapeUrl($viewModel->getScriptUrl()) ?>"
+        data-mindo-token="<?= $escaper->escapeHtmlAttr($viewModel->getChannelToken()) ?>"
+        async></script>
+<script type="text/x-magento-init">
+    {
+        "*": {
+            "Mindo_ChatWidget/js/identity": {}
+        }
+    }
+</script>

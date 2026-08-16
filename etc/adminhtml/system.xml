@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="mindo" translate="label" sortOrder="400">
+            <label>Mindo</label>
+        </tab>
+        <section id="mindo_chat_widget" translate="label" type="text" sortOrder="10"
+                 showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Chat Widget</label>
+            <tab>mindo</tab>
+            <resource>Mindo_ChatWidget::config</resource>
+            <group id="general" translate="label" type="text" sortOrder="10"
+                   showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>General</label>
+
+                <field id="enabled" translate="label comment" type="select" sortOrder="10"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Habilitado</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Inyecta el widget en el frontend de este store view.</comment>
+                </field>
+
+                <field id="channel_token" translate="label comment" type="text" sortOrder="20"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Token del canal</label>
+                    <comment><![CDATA[El <code>public_id</code> del canal Web, en MINDO: Configuración &rarr; Canales &rarr; Widget de chat web. Es público: viaja en el HTML.]]></comment>
+                    <depends><field id="enabled">1</field></depends>
+                </field>
+
+                <field id="hmac_secret" translate="label comment" type="obscure" sortOrder="30"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Secreto HMAC</label>
+                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                    <comment><![CDATA[Secreto del mismo canal. Firma la identidad del cliente logueado. <b>Nunca</b> se renderiza en el HTML. Se guarda encriptado; también se puede fijar por entorno con <code>bin/magento config:sensitive:set</code>.]]></comment>
+                    <depends><field id="enabled">1</field></depends>
+                </field>
+
+                <field id="identity_ttl" translate="label comment" type="text" sortOrder="40"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Vigencia de la identidad (segundos)</label>
+                    <validate>validate-digits</validate>
+                    <comment><![CDATA[Cuánto vale el JWT firmado. Default 86400 (24 h). Mindo rechaza cualquier valor mayor a 604800 (7 días), así que se recorta a ese tope. Mínimo 300.]]></comment>
+                    <depends><field id="enabled">1</field></depends>
+                </field>
+
+                <field id="script_url" translate="label comment" type="text" sortOrder="50"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>URL del loader</label>
+                    <comment><![CDATA[Default <code>https://app.mindosoftware.com/widget.js</code>. Cambiar solo para apuntar a un entorno de pruebas de Mindo.]]></comment>
+                    <depends><field id="enabled">1</field></depends>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

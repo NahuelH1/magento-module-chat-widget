@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!--
+        Registra `mindo-identity` como section de private content. Magento la
+        sirve por /customer/section/load, NUNCA por el Full Page Cache: es lo que
+        hace que el JWT de un cliente no se le pueda servir a otro.
+    -->
+    <type name="Magento\Customer\CustomerData\SectionPoolInterface">
+        <arguments>
+            <argument name="sectionSourceMap" xsi:type="array">
+                <item name="mindo-identity" xsi:type="string">Mindo\ChatWidget\CustomerData\MindoIdentity</item>
+            </argument>
+        </arguments>
+    </type>
+</config>

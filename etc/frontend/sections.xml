@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Customer:etc/sections.xsd">
+    <!--
+        Acciones que invalidan la identidad. El logout ya limpia todas las
+        sections por su cuenta; se declara igual porque el costo es cero y la
+        alternativa —que un JWT sobreviva al cierre de sesión— es justamente el
+        modo de falla que no queremos.
+    -->
+    <action name="customer/account/loginPost">
+        <section name="mindo-identity"/>
+    </action>
+    <action name="customer/ajax/login">
+        <section name="mindo-identity"/>
+    </action>
+    <action name="customer/account/logout">
+        <section name="mindo-identity"/>
+    </action>
+    <action name="customer/account/createpost">
+        <section name="mindo-identity"/>
+    </action>
+    <action name="customer/account/editPost">
+        <section name="mindo-identity"/>
+    </action>
+</config>

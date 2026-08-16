@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!--
+        El secreto se marca como sensible: queda fuera de `config:dump` y de
+        cualquier export de configuración, y se puede fijar por entorno con
+        `bin/magento config:sensitive:set`. Es lo que evita que termine
+        versionado en el repo del cliente.
+    -->
+    <type name="Magento\Config\Model\Config\TypePool">
+        <arguments>
+            <argument name="sensitive" xsi:type="array">
+                <item name="mindo_chat_widget/general/hmac_secret" xsi:type="string">1</item>
+            </argument>
+        </arguments>
+    </type>
+</config>
