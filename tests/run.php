@@ -101,7 +101,8 @@ const P_SECRET = 'mindo_chat_widget/general/hmac_secret';
 const P_TTL = 'mindo_chat_widget/general/identity_ttl';
 const P_URL = 'mindo_chat_widget/general/script_url';
 
-$secret = 'secreto-del-canal';
+// Un secreto realista: así es como los genera Mindo, `secrets.token_hex(32)`.
+$secret = 'a3f1c8e07b29d4165a0e8c37bd94f2e15c6a8093d7e412bf60a9c5d283e7146b';
 
 echo "\nModel\\Config\n";
 
@@ -298,6 +299,32 @@ test('un nombre con caracteres no UTF-8 no rompe la página', function () use ($
 test('el JWT no lleva padding base64 ni caracteres fuera de base64url', function () use ($secret) {
     $jwt = (new JwtSigner())->signHs256(['sub' => 'abc', 'exp' => time() + 60], $secret);
     assertTrue((bool)preg_match('/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/', $jwt), "JWT mal formado: $jwt");
+});
+
+test('secreto corto se rechaza en vez de firmar con crypto débil', function () {
+    try {
+        (new JwtSigner())->signHs256(['sub' => '1', 'exp' => time() + 60], 'clave-corta');
+        throw new \RuntimeException('firmó con un secreto de 11 bytes');
+    } catch (\DomainException $e) {
+        assertTrue(str_contains($e->getMessage(), '11 bytes'), 'el error tiene que decir el largo real');
+    }
+});
+
+test('secreto de exactamente 32 bytes se acepta', function () {
+    $jwt = (new JwtSigner())->signHs256(['sub' => '1', 'exp' => time() + 60], str_repeat('k', 32));
+    assertTrue(substr_count($jwt, '.') === 2);
+});
+
+test('secreto corto en el admin → visitante anónimo y queda en el log', function () {
+    $logger = new FakeLogger();
+    $session = new FakeSession(true, 42, new FakeCustomerData('A', 'B', 'a@b.com'), new FakeCustomer(null));
+    $cfg = makeConfig([P_ENABLED => 1, P_SECRET => 'enc:corto']);
+
+    $data = (new MindoIdentity($session, $cfg, new JwtSigner(), $logger))->getSectionData();
+
+    assertSame(null, $data['identity']);
+    assertSame(1, count($logger->warnings), 'tenía que loguear el motivo');
+    assertTrue(str_contains($logger->warnings[0], 'al menos 32'), 'el log tiene que explicar qué hacer');
 });
 
 echo "\n";
