@@ -11,7 +11,7 @@ Widget de chat web de Mindo para Magento 2, con identidad firmada del cliente lo
 | | |
 |---|---|
 | Magento | 2.4.x (Adobe Commerce y Open Source) |
-| PHP | 8.1 – 8.4 |
+| PHP | 8.1 – 8.5 |
 | Canal | Un canal Web creado en MINDO (Configuración → Canales → Widget de chat web) |
 
 Del canal necesitás dos cosas: el **token** (público, va en el HTML) y el **secreto HMAC** (privado, firma la identidad).
@@ -19,7 +19,7 @@ Del canal necesitás dos cosas: el **token** (público, va en el HTML) y el **se
 ## Instalación
 
 ```bash
-composer config repositories.mindo-chat-widget vcs git@github.com:<ORG>/magento-module-chat-widget.git
+composer config repositories.mindo-chat-widget vcs https://github.com/NahuelH1/magento-module-chat-widget.git
 composer require mindo/module-chat-widget
 
 bin/magento module:enable Mindo_ChatWidget
@@ -27,8 +27,6 @@ bin/magento setup:upgrade
 bin/magento setup:di:compile        # solo en modo producción
 bin/magento cache:flush
 ```
-
-El repo es privado: la máquina que corra `composer` necesita acceso de lectura (deploy key en el repo, o el token de GitHub en `auth.json`).
 
 ## Configuración
 
